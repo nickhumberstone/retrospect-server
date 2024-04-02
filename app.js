@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { getAnswers, addAnswer, getAllAnswers, getDailyAnswers, getMyAnswers, getDailyQuestion, createUserProfile } from './databaselogic.js';
+import { addAnswer, getDailyAnswers, getMyAnswers, getDailyQuestion, createUserProfile } from './databaselogic.js';
 
 const app = express();
 app.use(cors());
