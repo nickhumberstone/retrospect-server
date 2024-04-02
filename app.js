@@ -22,7 +22,7 @@ app.use("/dailyanswers", async (req, res) => {
 // queries are added by appending ?user_id=[id] to the endpoint
 app.use("/myanswers", async (req, res) => {
     console.log("/myanswers triggered") 
-    const {user} = req.query.user_id
+    const user = req.query.user_id
     const answers = await getMyAnswers(user)
    res.send(answers);
 })
