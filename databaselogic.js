@@ -37,7 +37,8 @@ export async function getDailyAnswers(user) {
 export async function getMyAnswers(user) {
     const dayOfWeek = new Date().getDay();
     const [output] = await pool.query(`
-    SELECT response_id, text_content, dayOfWeek
+    SELECT response_id, text_content, created_datetime, 
+    DATE_FORMAT(created_datetime, '%a %D %M') as created_datetime
     FROM responses 
     WHERE user_id = ?
     AND dayOfWeek = ?`, [user, dayOfWeek])
