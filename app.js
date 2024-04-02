@@ -12,6 +12,7 @@ app.use('/favicon.ico', express.static('favicon.ico'));
 //display daily responses
 // queries are added by appending ?user_id=[id] to the endpoint
 app.use("/dailyanswers", async (req, res) => {
+    console.log("/dailyanswers triggered")
     const user = req.query.user_id
     const answers = await getDailyAnswers(user)
    res.send(answers);
@@ -19,7 +20,8 @@ app.use("/dailyanswers", async (req, res) => {
 
 //display your previous responses
 // queries are added by appending ?user_id=[id] to the endpoint
-app.use("/myanswers", async (req, res) => { 
+app.use("/myanswers", async (req, res) => {
+    console.log("/myanswers triggered") 
     const {user} = req.query.user_id
     const answers = await getMyAnswers(user)
    res.send(answers);
@@ -35,6 +37,7 @@ app.post("/add", async (req, res) => {
 
 // for creating new profiles (automated when registered with Auth0)
 app.post("/newuser", async (req, res) => {
+    console.log("/new triggered with values:", req.body)
     const {user_id, email, given_name, family_name, latitude, longitude} = req.body
     const output = await createUserProfile(user_id, email, given_name, family_name, latitude, longitude)
     res.status(201).send(output)
@@ -43,6 +46,7 @@ app.post("/newuser", async (req, res) => {
 
 //for getting the question of the day (7 day rotation currently)
 app.use("/dailyquestion", async (req,res) => {
+    console.log("/dailyquestion triggered")
     const output = await getDailyQuestion()
     res.send(output);
 })
