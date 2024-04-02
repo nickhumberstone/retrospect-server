@@ -10,11 +10,6 @@ app.use(express.json());
 //set favicon
 app.use('/favicon.ico', express.static('favicon.ico'));
 
-// Welcome page
-app.use("/", async (req,res) => {
-    res.send("Server is running. Visit /dailyquestion to check it's connected.");
-})
-
 // for displaying all responses
 app.use("/answers", async (req, res) => {
     const answers = await getAnswers()
