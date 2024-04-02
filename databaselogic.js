@@ -10,16 +10,6 @@ const pool = mysql.createPool({
     database: process.env.MYSQL_DATABASE
 }).promise()
 
-export async function getAnswers() {
-    const [output] = await pool.query("SELECT user_id, text_content FROM responses ORDER BY RAND() LIMIT 5")
-        return output
-    }
-
-    export async function getAllAnswers() {
-        const [output] = await pool.query("SELECT * FROM responses")
-        return output
-    }
-
 export async function addAnswer(user_id, text_content) {
     const [output] = await pool.query(`
     INSERT into responses (user_id, text_content)

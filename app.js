@@ -2,25 +2,12 @@ import express from 'express';
 import cors from 'cors';
 import { getAnswers, addAnswer, getAllAnswers, getDailyAnswers, getMyAnswers, getDailyQuestion, createUserProfile } from './databaselogic.js';
 
-
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 //set favicon
 app.use('/favicon.ico', express.static('favicon.ico'));
-
-// for displaying all responses
-app.use("/answers", async (req, res) => {
-    const answers = await getAnswers()
-   res.send(answers);
-})
-
-//display all answers
-app.use("/allanswers", async (req, res) => {
-    const answers = await getAllAnswers()
-   res.send(answers);
-})
 
 //display daily responses
 // queries are added by appending ?user_id=[id] to the endpoint
@@ -46,7 +33,7 @@ app.post("/add", async (req, res) => {
     
 })
 
-// for creating new profiles
+// for creating new profiles (automated when registered with Auth0)
 app.post("/newuser", async (req, res) => {
     const {user_id, email, given_name, family_name, latitude, longitude} = req.body
     const output = await createUserProfile(user_id, email, given_name, family_name, latitude, longitude)
