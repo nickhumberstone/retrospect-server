@@ -10,10 +10,10 @@ app.use(express.json());
 //set favicon
 app.use('/favicon.ico', express.static('favicon.ico'));
 
-//welcome page
-// app.use("/", async (req,res) => {
-//     res.send("If you're seeing this, then Heroku is properly running the app.js file. Yay.");
-// })
+// Welcome page
+app.use("/", async (req,res) => {
+    res.send("Server is running. Visit /dailyquestion to check it's connected.");
+})
 
 // for displaying all responses
 app.use("/answers", async (req, res) => {
@@ -75,5 +75,3 @@ app.use((err, req, res, next) => {
 app.listen(process.env.PORT || 3030, ()=>{
     console.log("Node JS Server started on 3030. Make sure Docker is running on 3306, and localtunnel is exposing port 3306 to retrospect subdomain")
 })
-
-// await addAnswer("100","3","third answer is here")

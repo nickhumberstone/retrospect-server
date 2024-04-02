@@ -1,28 +1,13 @@
 Commands for setup
 
-Run NPM RUN DEV from /server
+[npm run dev]
+This will get the app running on port 3030
 
-Run YARN START from /client
+Run your docker instance on port 3306
 
-Ensure Docker is running
+lt --port 3030 --subdomain retrospect
+This will expose port 3030 so that you can test with Android devices. Without it you can only test in the browser at localhost:3030
 
-Open up Pixel Device in Android Studio
+You will need to use the schema.sql file to get your MySQL instance set up. This is currently not included for security.
 
-Press 'a' in client terminal to open in Android Emulator
-
-When running locally, you need to expose your server port with localtunnel:
-
-lt --port 3030 --subdomain questionanswer
-
-
-npm run dev --prefix server
-yarn start --prefix client
-lt --port 3030 --subdomain questionanswer (for testing using browser to access the server)
-
-When using the Expo Dev app on device, you need to start the client with --tunnel flag to make it work
- npx expo start --dev-client --tunnel
-
- https://questionanswer.loca.lt/answers is how to access answers via the browser
-
- How the app and sign in is set up:
- We have our central app.js which is the app itself. Within it is a condition that checks if the user is logged in, and shows them either the app, or the login/register screens. This had the added benefit of continuing to show someone the logged in experience if the login token persists, saving them from having to log in or to view the log-in screen each time.
+Visit [https://retrospect.loca.lt/dailyquestion](https://retrospect.loca.lt/dailyquestion) to check if it's all working. You should see a single line json file
