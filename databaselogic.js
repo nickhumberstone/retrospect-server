@@ -11,9 +11,10 @@ const pool = mysql.createPool({
 }).promise()
 
 export async function addAnswer(user_id, text_content) {
+    const dayOfWeek = new Date().getDay();
     const [output] = await pool.query(`
-    INSERT into responses (user_id, text_content)
-    VALUES (?, ?)`, [user_id, text_content])
+    INSERT into responses (user_id, text_content, dayOfWeek)
+    VALUES (?, ?, ?)`, [user_id, text_content, dayOfWeek])
     return output[0]
 }
 
@@ -34,10 +35,12 @@ export async function getDailyAnswers(user) {
 }
 
 export async function getMyAnswers(user) {
+    const dayOfWeek = new Date().getDay();
     const [output] = await pool.query(`
-    SELECT response_id, user_id, text_content 
+    SELECT response_id, text_content, dayOfWeek
     FROM responses 
-    WHERE user_id = ?`, [user])
+    WHERE user_id = ?
+    AND dayOfWeek = ?`, [user, dayOfWeek])
         return output
 }
 
