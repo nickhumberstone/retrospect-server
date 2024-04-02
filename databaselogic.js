@@ -26,11 +26,13 @@ export async function getDailyAnswers(user) {
     let day = d.getDate()
     let datetoday = year + "-" + month + "-" + day;
     const [output] = await pool.query(`
-    SELECT response_id, user_id, text_content 
+    SELECT response_id, given_name, text_content 
     FROM responses 
+    INNER JOIN user_profile ON responses.user_id=user_profile.user_id
     WHERE DATE(created_datetime) = ?
-    AND user_id != ?
-    ORDER BY RAND() LIMIT 5`, [datetoday, user])
+    AND responses.user_id != ?
+    ORDER BY RAND() LIMIT 5`
+    , [datetoday, user])
         return output
 }
 
