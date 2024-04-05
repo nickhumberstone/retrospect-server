@@ -47,6 +47,17 @@ export async function getMyAnswers(user) {
         return output
 }
 
+export async function hasAnswered(user){
+    console.log("/hasAnswered triggered")
+    const [output] = await pool.query(`
+    SELECT created_datetime, text_content
+    FROM responses
+    WHERE user_id = ?
+    AND created_datetime > CONCAT(CURDATE(),' 00:00:00')`
+    , [user])
+    return output
+}
+
 export async function getDailyQuestion() {
     //getDay starts with Sunday (index 0)
     const dayOfWeek = new Date().getDay();

@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { addAnswer, getDailyAnswers, getMyAnswers, getDailyQuestion, createUserProfile } from './databaselogic.js';
+import { addAnswer, getDailyAnswers, getMyAnswers, getDailyQuestion, createUserProfile, hasAnswered } from './databaselogic.js';
 
 const app = express();
 app.use(cors());
@@ -42,6 +42,14 @@ app.post("/newuser", async (req, res) => {
     const output = await createUserProfile(user_id, email, given_name, family_name, latitude, longitude)
     res.status(201).send(output)
     
+})
+
+//for checking if the user has a response for today on the server (so that it can be limited 1 response per day)
+app.use("/hasanswered", async (req, res) => {
+    console.log("/myanswertoday triggered")
+    const user = req.query.user_id
+    const answer = await hasAnswered(user)
+    res.send(answer)
 })
 
 //for getting the question of the day (7 day rotation currently)
