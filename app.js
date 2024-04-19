@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { addAnswer, getDailyAnswers, getMyAnswers, getDailyQuestion, createUserProfile, hasAnswered } from './databaselogic.js';
+import { addAnswer, getDailyAnswers, getMyAnswers, getDailyQuestion, createUserProfile, myLatestResponse } from './databaselogic.js';
 
 const app = express();
 app.use(cors());
@@ -32,7 +32,6 @@ app.post("/add", async (req, res) => {
     const {user_id, text_content} = req.body
     const output = await addAnswer(user_id, text_content)
     res.status(201).send(output)
-    
 })
 
 // for creating new profiles (automated when registered with Auth0)
@@ -44,11 +43,11 @@ app.post("/newuser", async (req, res) => {
     
 })
 
-//for checking if the user has a response for today on the server (so that it can be limited 1 response per day)
-app.use("/hasanswered", async (req, res) => {
-    console.log("/myanswertoday triggered")
+// for fetching users most recent response, to determine if they've answered today
+app.use("/mylatestresponse", async (req, res) => {
+    console.log("/mylatestresponse triggered - attempting to fetch users most recent response")
     const user = req.query.user_id
-    const answer = await hasAnswered(user)
+    const answer = await myLatestResponse(user)
     res.send(answer)
 })
 

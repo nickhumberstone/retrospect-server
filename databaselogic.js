@@ -47,13 +47,14 @@ export async function getMyAnswers(user) {
         return output
 }
 
-export async function hasAnswered(user){
-    console.log("/hasAnswered triggered")
+export async function myLatestResponse(user){
+    console.log("/myLatestResponse triggered")
     const [output] = await pool.query(`
     SELECT created_datetime, text_content
     FROM responses
     WHERE user_id = ?
-    AND created_datetime > CONCAT(CURDATE(),' 00:00:00')`
+    ORDER BY created_datetime DESC
+    LIMIT 1`
     , [user])
     return output
 }
