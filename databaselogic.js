@@ -50,7 +50,7 @@ export async function getMyAnswers(user) {
 export async function myLatestResponse(user){
     console.log("/myLatestResponse triggered")
     const [output] = await pool.query(`
-    SELECT created_datetime, text_content
+    SELECT created_datetime
     FROM responses
     WHERE user_id = ?
     ORDER BY created_datetime DESC
