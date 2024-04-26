@@ -36,7 +36,7 @@ app.post("/add", async (req, res) => {
 
 // for creating new profiles (automated when registered with Auth0)
 app.post("/newuser", async (req, res) => {
-    console.log("/new triggered with values:", req.body)
+    console.log("/newuser triggered with values:", req.body)
     const {user_id, email, given_name, family_name, latitude, longitude} = req.body
     const output = await createUserProfile(user_id, email, given_name, family_name, latitude, longitude)
     res.status(201).send(output)
