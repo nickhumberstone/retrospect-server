@@ -10,11 +10,19 @@ const pool = mysql.createPool({
     database: process.env.MYSQL_DATABASE
 }).promise()
 
+// Adds response to database, or updates if that user has already answered that day.
 export async function addAnswer(user_id, text_content) {
     const dayOfWeek = new Date().getDay();
-    const [output] = await pool.query(`
-    INSERT into responses (user_id, text_content, dayOfWeek)
-    VALUES (?, ?, ?)`, [user_id, text_content, dayOfWeek])
+    const d = new Date()
+    const userdate = d.toISOString().slice(0,10).concat(user_id)
+    const [output] = await pool.query(
+        // Attempt to insert, but if not then update instead
+        `INSERT INTO responses (text_content, user_id, dayOfWeek, userdate)
+        VALUES ( ? , ? , ? , ?)
+        ON DUPLICATE KEY UPDATE
+        text_content = ?
+        ;`
+        , [text_content, user_id, dayOfWeek, userdate, text_content])
     return output[0]
 }
 
@@ -29,7 +37,7 @@ export async function getDailyAnswers(user) {
     SELECT response_id, given_name, text_content 
     FROM responses 
     INNER JOIN user_profile ON responses.user_id=user_profile.user_id
-    WHERE DATE(created_datetime) = ?
+    WHERE DATE(date_created) = ?
     AND responses.user_id != ?
     ORDER BY RAND() LIMIT 5`
     , [datetoday, user])
@@ -39,7 +47,7 @@ export async function getDailyAnswers(user) {
 export async function getMyAnswers(user) {
     const dayOfWeek = new Date().getDay();
     const [output] = await pool.query(`
-    SELECT response_id, text_content, DATE_FORMAT(created_datetime, '%a %D %M') as created_datetime
+    SELECT response_id, text_content, DATE_FORMAT(date_created, '%a %D %M') as date_created
     FROM responses 
     WHERE user_id = ?
     AND dayOfWeek = ?
@@ -51,10 +59,10 @@ export async function getMyAnswers(user) {
 export async function myLatestResponse(user){
     console.log("/myLatestResponse triggered")
     const [output] = await pool.query(`
-    SELECT created_datetime
+    SELECT date_created
     FROM responses
     WHERE user_id = ?
-    ORDER BY created_datetime DESC
+    ORDER BY date_created DESC
     LIMIT 1`
     , [user])
     return output
