@@ -14,15 +14,16 @@ const pool = mysql.createPool({
 export async function addAnswer(user_id, text_content) {
     const dayOfWeek = new Date().getDay();
     const d = new Date()
-    const userdate = d.toISOString().slice(0,10).concat(user_id)
+    const date = d.toISOString().slice(0,10)
+    const userdate = date.concat(user_id)
     const [output] = await pool.query(
         // Attempt to insert, but if not then update instead
-        `INSERT INTO responses (text_content, user_id, dayOfWeek, userdate)
-        VALUES ( ? , ? , ? , ?)
+        `INSERT INTO responses (text_content, user_id, dayOfWeek, date_created, userdate)
+        VALUES ( ? , ? , ? , ? , ?)
         ON DUPLICATE KEY UPDATE
         text_content = ?
         ;`
-        , [text_content, user_id, dayOfWeek, userdate, text_content])
+        , [text_content, user_id, dayOfWeek, date, userdate, text_content])
     return output[0]
 }
 
