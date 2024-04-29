@@ -66,6 +66,7 @@ export async function myLatestResponse(user){
     ORDER BY date_created DESC
     LIMIT 1`
     , [user])
+    console.log("MY LATEST RESPONSE ",output)
     return output
 }
 
