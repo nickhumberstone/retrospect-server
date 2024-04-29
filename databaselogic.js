@@ -28,12 +28,7 @@ export async function addAnswer(user_id, text_content) {
 }
 
 export async function getDailyAnswers(user) {
-    const d = new Date();
-    let year = d.getFullYear()
-    //month is zero index, so we must +1 the value
-    let month = d.getMonth() + 1
-    let day = d.getDate()
-    let datetoday = year + "-" + month + "-" + day;
+    const date = new Date().toISOString().slice(0,10)
     const [output] = await pool.query(`
     SELECT response_id, given_name, text_content 
     FROM responses 
@@ -41,7 +36,7 @@ export async function getDailyAnswers(user) {
     WHERE DATE(date_created) = ?
     AND responses.user_id != ?
     ORDER BY RAND() LIMIT 5`
-    , [datetoday, user])
+    , [date, user])
         return output
 }
 
@@ -57,17 +52,24 @@ export async function getMyAnswers(user) {
         return output
 }
 
-export async function myLatestResponse(user){
-    console.log("/myLatestResponse triggered")
+export async function didTheyAnswerToday(user){
+    console.log("/didTheyAnswerToday triggered")
+    const date = new Date().toISOString().slice(0,10)
+    
+    console.log("Date today =  ",date)
     const [output] = await pool.query(`
-    SELECT date_created
+    SELECT date_created, text_content
     FROM responses
     WHERE user_id = ?
-    ORDER BY date_created DESC
-    LIMIT 1`
-    , [user])
-    console.log("MY LATEST RESPONSE ",output)
-    return output
+    AND date_created = ?`
+    , [user, date])
+    console.log("output: ",output)
+    console.log("didtheyanswetoday !output: ",!output)
+    if (output.length === 0) {
+        return false
+    } else {
+        return true
+    }
 }
 
 export async function getDailyQuestion() {

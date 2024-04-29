@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { addAnswer, getDailyAnswers, getMyAnswers, getDailyQuestion, createUserProfile, myLatestResponse } from './databaselogic.js';
+import { addAnswer, getDailyAnswers, getMyAnswers, getDailyQuestion, createUserProfile, didTheyAnswerToday } from './databaselogic.js';
 
 const app = express();
 app.use(cors());
@@ -44,10 +44,10 @@ app.post("/newuser", async (req, res) => {
 })
 
 // for fetching users most recent response, to determine if they've answered today
-app.use("/mylatestresponse", async (req, res) => {
-    console.log("/mylatestresponse triggered - attempting to fetch users most recent response")
+app.use("/didtheyanswertoday", async (req, res) => {
+    console.log("/didtheyanswertoday triggered - attempting to fetch users most recent response")
     const user = req.query.user_id
-    const answer = await myLatestResponse(user)
+    const answer = await didTheyAnswerToday(user)
     console.log(answer)
     res.send(answer)
 })
