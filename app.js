@@ -48,6 +48,7 @@ app.use("/mylatestresponse", async (req, res) => {
     console.log("/mylatestresponse triggered - attempting to fetch users most recent response")
     const user = req.query.user_id
     const answer = await myLatestResponse(user)
+    console.log(answer)
     res.send(answer)
 })
 
