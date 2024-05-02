@@ -24,6 +24,7 @@ export async function addAnswer(user_id, text_content) {
         text_content = ?
         ;`
         , [text_content, user_id, dayOfWeek, date, userdate, text_content])
+        console.log("New Response Submitted: ",text_content," - ",user_id)
     return output[0]
 }
 
@@ -55,8 +56,6 @@ export async function getMyAnswers(user) {
 export async function didTheyAnswerToday(user){
     console.log("/didTheyAnswerToday triggered")
     const date = new Date().toISOString().slice(0,10)
-    
-    console.log("Date today =  ",date)
     const [output] = await pool.query(`
     SELECT date_created, text_content
     FROM responses
@@ -80,6 +79,7 @@ export async function getDailyQuestion() {
     FROM questions 
     WHERE dayOfWeek = ? 
     LIMIT 1`, [dayOfWeek])
+    console.log("Daily Question generated: ",output)
         return output
 }
 
@@ -87,5 +87,6 @@ export async function createUserProfile(user_id, email, given_name, family_name,
     const [output] = await pool.query(`
     INSERT into user_profile (user_id, email, given_name, family_name, latitude, longitude)
     VALUES (?,?,?,?,?,?)`, [user_id, email, given_name, family_name, latitude, longitude])
+    console.log('New User created with info: ',given_name,' ',family_name,' - ',email,' - ',user_id)
     return output[0]
 }
