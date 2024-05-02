@@ -84,6 +84,7 @@ export async function getDailyQuestion() {
 }
 
 export async function createUserProfile(user_id, email, given_name, family_name, latitude, longitude) {
+    console.log("attempting to create user profile")
     const [output] = await pool.query(`
     INSERT into user_profile (user_id, email, given_name, family_name, latitude, longitude)
     VALUES (?,?,?,?,?,?)`, [user_id, email, given_name, family_name, latitude, longitude])
