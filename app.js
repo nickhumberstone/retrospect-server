@@ -6,7 +6,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-//set favicon
+//set favicon 
 app.use('/favicon.ico', express.static('favicon.ico'));
 
 //display daily responses
@@ -18,7 +18,7 @@ app.use("/dailyanswers", async (req, res) => {
    res.send(answers);
 })
 
-//display your previous responses
+//display 4 previous responses for the day's question
 // queries are added by appending ?user_id=[id] to the endpoint
 app.use("/myanswers", async (req, res) => {
     console.log("/myanswers triggered") 
@@ -27,14 +27,14 @@ app.use("/myanswers", async (req, res) => {
    res.send(answers);
 })
 
-// for creating new response
+// creates new response
 app.post("/add", async (req, res) => {
     const {user_id, text_content} = req.body
     const output = await addAnswer(user_id, text_content)
     res.status(201).send(output)
 })
 
-// for creating new profiles (automated when registered with Auth0)
+// creates new profile (triggered by post-reg action in Auth0)
 app.post("/newuser", async (req, res) => {
     console.log("/newuser triggered with values:", req.body)
     const {user_id, email, given_name, family_name, latitude, longitude} = req.body
@@ -43,7 +43,7 @@ app.post("/newuser", async (req, res) => {
     
 })
 
-// for fetching users most recent response, to determine if they've answered today
+// fetches users most recent response, to see if they need to answer daily question
 app.use("/didtheyanswertoday", async (req, res) => {
     console.log("/didtheyanswertoday triggered - attempting to fetch users most recent response")
     const user = req.query.user_id
@@ -52,7 +52,7 @@ app.use("/didtheyanswertoday", async (req, res) => {
     res.send(answer)
 })
 
-//for getting the question of the day (7 day rotation currently)
+//fetched today's question (7 day rotation currently)
 app.use("/dailyquestion", async (req,res) => {
     console.log("/dailyquestion triggered")
     const output = await getDailyQuestion()
@@ -67,5 +67,5 @@ app.use((err, req, res, next) => {
 
 
 app.listen(process.env.PORT || 3030, ()=>{
-    console.log("Node JS Server started on 3030. Make sure Docker is running on 3306, and localtunnel is exposing port 3306 to retrospect subdomain")
+    console.log("Node JS Server started on 3030.  ----  If running locally, make sure Docker is running on 3306, an localtunnel is exposing 3306.")
 })
