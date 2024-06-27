@@ -59,6 +59,13 @@ app.use("/dailyquestion", async (req,res) => {
     res.send(output);
 })
 
+//send push notification to server
+app.post("/registerpushnotifications", async (req, res) => {
+    const {user_id, expo_push_token} = req.body
+    const output = await addExpoPushToken(user_id, expo_push_token)
+    res.status(201).send(output)
+})
+
 //error responses
 app.use((err, req, res, next) => {
     console.error(err.stack)
