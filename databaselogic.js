@@ -83,6 +83,16 @@ export async function getDailyQuestion() {
         return output
 }
 
+// Adds expopushtoken to database
+export async function addExpoPushToken(user_id, expo_push_token) {
+    const [output] = await pool.query(
+        // Attempt to insert, but if not then update instead
+        `INSERT INTO expo_push_tokens (user_id, expo_push_token) VALUES ( ? , ?);`
+        , [user_id, expo_push_token])
+        console.log("ExpoPushToken added: ",expo_push_token," - ",user_id)
+    return output[0]
+}
+
 export async function createUserProfile(user_id, email, given_name, family_name, latitude, longitude) {
     console.log("attempting to create user profile")
     const [output] = await pool.query(`
