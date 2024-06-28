@@ -36,7 +36,7 @@ export async function getDailyAnswers(user) {
     INNER JOIN user_profile ON responses.user_id=user_profile.user_id
     WHERE DATE(date_created) = ?
     AND responses.user_id != ?
-    ORDER BY RAND() LIMIT 5`
+    ORDER BY RAND() LIMIT 10`
     , [date, user])
         return output
 }
@@ -87,8 +87,11 @@ export async function getDailyQuestion() {
 export async function addExpoPushToken(user_id, expo_push_token) {
     const [output] = await pool.query(
         // Attempt to insert, but if not then update instead
-        `INSERT INTO expo_push_tokens (user_id, expo_push_token) VALUES ( ? , ?);`
-        , [user_id, expo_push_token])
+        `INSERT INTO expo_push_tokens (user_id, expo_push_token) VALUES ( ? , ?)
+        ON DUPLICATE KEY UPDATE
+        user_id = ?
+        ;`
+        , [user_id, expo_push_token, user_id])
         console.log("ExpoPushToken added: ",expo_push_token," - ",user_id)
     return output[0]
 }
