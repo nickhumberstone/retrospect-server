@@ -20,12 +20,17 @@ const pool = mysql.createPool({
 }).promise()
 
 async function listNotResponded() {
-    const date = new Date().toISOString().slice(0,10)
+    const date = '2024-05-11'
+    // const date = new Date().toISOString().slice(0,10)
     const [output] = await pool.query(`
-    SELECT response_id, given_name, text_content 
-    FROM responses 
-    ORDER BY RAND() LIMIT 10`)
+    SELECT expo_push_token
+    FROM expo_push_tokens
+    LEFT JOIN responses
+    ON responses.user_id = expo_push_tokens.user_id
+    WHERE date_created = ?`,[date])
+        console.log(output)
         return output
+        
 }
 
 listNotResponded();
