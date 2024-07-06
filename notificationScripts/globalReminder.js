@@ -23,13 +23,14 @@ async function listNotResponded() {
     const date = '2024-05-11'
     // const date = new Date().toISOString().slice(0,10)
     const [output] = await pool.query(`
-    SELECT expo_push_token
+    SELECT GROUP_CONCAT(expo_push_token) AS expo_push_tokens_list
     FROM expo_push_tokens
-    LEFT JOIN responses
+    LEFT JOIN responses 
     ON responses.user_id = expo_push_tokens.user_id
-    WHERE date_created = ?`,[date])
-        console.log(output)
-        return output
+    AND DATE(responses.date_created) = curdate()
+    WHERE responses.user_id IS NULL`,[date])
+        console.log(output[0].expo_push_tokens_list)
+        return output[0].expo_push_tokens_list
         
 }
 
