@@ -2,6 +2,9 @@
 
 *.sql
 *.yml
+google-services.json
+google-servicesDEV.json
+
 
 # dependencies
 node_modules/
