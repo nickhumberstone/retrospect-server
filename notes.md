@@ -16,3 +16,5 @@ Once number of community answers is 6 or more, send push notification to those f
 How often should the check for 6 current answers run? Every 5 mins? And disabled for the next X hours once it is complete
 
 When sending push notifications, consider fail responses and manage retiring the stored token to prevent pointless token sends
+
+The rest of the notification stuff is server side, so I can go ahead with getting the app sorted and test the notifications on a preview release! `:)`
