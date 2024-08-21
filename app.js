@@ -52,7 +52,7 @@ app.use("/didtheyanswertoday", async (req, res) => {
     res.send(answer)
 })
 
-//fetched today's question (7 day rotation currently)
+//fetched today's question (28 day rotation currently)
 app.use("/dailyquestion", async (req,res) => {
     console.log("/dailyquestion triggered")
     const output = await getDailyQuestion()

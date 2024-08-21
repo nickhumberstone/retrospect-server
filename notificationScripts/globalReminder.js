@@ -48,7 +48,7 @@ let expo = new Expo({
 
 console.log("expo access token set")
 
-const pushtokenlist = ['ExponentPushToken[w3ShgtB9AVx5KByVT4MwrC]']
+const pushtokenlist = ['ExponentPushToken[TXWTkvBWkRn7PD2Wg2PWBh]']
 
 // Create the messages that you want to send to clients
 let messages = [];

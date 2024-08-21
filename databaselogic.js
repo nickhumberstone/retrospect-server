@@ -1,5 +1,6 @@
 import mysql from 'mysql2';
 import dotenv from 'dotenv';
+import dayInCycleCalculation from './functions/dayInCycleCalculation'
 dotenv.config();
 
 const pool = mysql.createPool({
@@ -12,18 +13,18 @@ const pool = mysql.createPool({
 
 // Adds response to database, or updates if that user has already answered that day.
 export async function addAnswer(user_id, text_content) {
-    const dayOfWeek = new Date().getDay();
+    const dayInCycle = dayInCycleCalculation();
     const d = new Date()
     const date = d.toISOString().slice(0,10)
     const userdate = date.concat(user_id)
     const [output] = await pool.query(
         // Attempt to insert, but if not then update instead
-        `INSERT INTO responses (text_content, user_id, dayOfWeek, date_created, userdate)
+        `INSERT INTO responses (text_content, user_id, dayInCycle, date_created, userdate)
         VALUES ( ? , ? , ? , ? , ?)
         ON DUPLICATE KEY UPDATE
         text_content = ?
         ;`
-        , [text_content, user_id, dayOfWeek, date, userdate, text_content])
+        , [text_content, user_id, dayInCycle, date, userdate, text_content])
         console.log("New Response Submitted: ",text_content," - ",user_id)
     return output[0]
 }
@@ -42,14 +43,14 @@ export async function getDailyAnswers(user) {
 }
 
 export async function getMyAnswers(user) {
-    const dayOfWeek = new Date().getDay();
+    const dayInCycle = dayInCycleCalculation();
     const [output] = await pool.query(`
     SELECT response_id, text_content, DATE_FORMAT(date_created, '%a %D %M') as date_created
     FROM responses 
     WHERE user_id = ?
-    AND dayOfWeek = ?
+    AND dayInCycle = ?
     ORDER BY response_id DESC
-    LIMIT 4`, [user, dayOfWeek])
+    LIMIT 4`, [user, dayInCycle])
         return output
 }
 
@@ -73,13 +74,13 @@ export async function didTheyAnswerToday(user){
 
 export async function getDailyQuestion() {
     //getDay starts with Sunday (index 0)
-    const dayOfWeek = new Date().getDay();
+    const dayInCycle = dayInCycleCalculation();
     const [output] = await pool.query(`
     SELECT dailyQuestion 
     FROM questions 
-    WHERE dayOfWeek = ? 
-    LIMIT 1`, [dayOfWeek])
-    console.log("Daily Question generated: ",output)
+    WHERE dayInCycle = ? 
+    LIMIT 1`, [dayInCycle])
+    console.log("Daily Question generated: ",output, " (",dayInCycle,")")
         return output
 }
 
@@ -89,8 +90,7 @@ export async function addExpoPushToken(user_id, expo_push_token) {
         // Attempt to insert, but if not then update instead
         `INSERT INTO expo_push_tokens (user_id, expo_push_token) VALUES ( ? , ?)
         ON DUPLICATE KEY UPDATE
-        user_id = ?
-        ;`
+        user_id = ?`
         , [user_id, expo_push_token, user_id])
         console.log("ExpoPushToken added: ",expo_push_token," - ",user_id)
     return output[0]
