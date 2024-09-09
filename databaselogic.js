@@ -64,6 +64,9 @@ export async function getMyAnswers(user) {
 
 export async function didTheyAnswerToday(user) {
   console.log("/didTheyAnswerToday triggered");
+
+  const user = "auth|7C663e6d028c9808c33cbfb0d2";
+
   const date = new Date().toISOString().slice(0, 10);
   const [output] = await pool.query(
     `
@@ -84,7 +87,8 @@ export async function didTheyAnswerToday(user) {
 
 export async function getDailyQuestion() {
   //getDay starts with Sunday (index 0)
-  const dayInCycle = dayInCycleCalculation();
+  // const dayInCycle = dayInCycleCalculation();
+  const dayInCycle = 2;
   const [output] = await pool.query(
     `
     SELECT dailyQuestion 
