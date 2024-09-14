@@ -15,7 +15,7 @@ const pool = mysql
 
 // Adds response to database, or updates if that user has already answered that day.
 export async function addAnswer(user_id, text_content) {
-  const dayInCycle = dayInCycleCalculation();
+  const dayInCycle = dayInCycleCalculation(Date.now());
   const d = new Date();
   const date = d.toISOString().slice(0, 10);
   const userdate = date.concat(user_id);
@@ -28,8 +28,8 @@ export async function addAnswer(user_id, text_content) {
         ;`,
     [text_content, user_id, dayInCycle, date, userdate, text_content]
   );
-  console.log("New Response Submitted: ", text_content, " - ", user_id);
-  return output[0];
+  console.log("addAnswer: ", text_content, " | ", user_id);
+  return output;
 }
 
 export async function getDailyAnswers(user) {
@@ -48,7 +48,7 @@ export async function getDailyAnswers(user) {
 }
 
 export async function getMyAnswers(user) {
-  const dayInCycle = dayInCycleCalculation();
+  const dayInCycle = dayInCycleCalculation(Date.now());
   const [output] = await pool.query(
     `
     SELECT response_id, text_content, DATE_FORMAT(date_created, '%a %D %M') as date_created
@@ -64,7 +64,6 @@ export async function getMyAnswers(user) {
 
 export async function didTheyAnswerToday(user) {
   console.log("/didTheyAnswerToday triggered");
-
   const date = new Date().toISOString().slice(0, 10);
   const [output] = await pool.query(
     `
@@ -86,7 +85,7 @@ export async function didTheyAnswerToday(user) {
 export async function getDailyQuestion() {
   //getDay starts with Sunday (index 0)
   // const dayInCycle = dayInCycleCalculation();
-  const dayInCycle = 2;
+  const dayInCycle = dayInCycleCalculation(Date.now());
   const [output] = await pool.query(
     `
     SELECT dailyQuestion 
@@ -109,7 +108,7 @@ export async function addExpoPushToken(user_id, expo_push_token) {
     [user_id, expo_push_token, user_id]
   );
   console.log("ExpoPushToken added: ", expo_push_token, " - ", user_id);
-  return output[0];
+  return output;
 }
 
 export async function createUserProfile(
@@ -137,5 +136,5 @@ export async function createUserProfile(
     " - ",
     user_id
   );
-  return output[0];
+  return output;
 }
