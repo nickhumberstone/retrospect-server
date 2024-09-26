@@ -5,8 +5,8 @@ function dayInCycleCalculation(date) {
   }
   // Convert milliseconds to days
   const dateInDays = Math.floor(date / (24 * 60 * 60 * 1000));
-  // Find position in 28 day cycle
-  const dayInCycle = dateInDays % 28;
+  // Find position in 28 day cycle (index is 0, so 27)
+  const dayInCycle = dateInDays % 27;
   return dayInCycle;
 }
 
