@@ -85,12 +85,14 @@ export async function didTheyAnswerToday(user) {
 export async function getDailyQuestion() {
   //getDay starts with Sunday (index 0)
   // const dayInCycle = dayInCycleCalculation();
+  console.log("DN:", Date.now());
   const dayInCycle = dayInCycleCalculation(Date.now());
+  console.log("DIC:", dayInCycle);
   const [output] = await pool.query(
     `
     SELECT dailyQuestion 
     FROM questions 
-    WHERE dayInCycle = ? 
+    WHERE dayInCycle = ?
     LIMIT 1`,
     [dayInCycle]
   );
@@ -137,4 +139,22 @@ export async function createUserProfile(
     user_id
   );
   return output;
+}
+
+export async function getPushTokensDailyReminder() {
+  console.log("listnotresponded triggered");
+  //Query selects all expo_push_tokens where there is no response from today, and the token is either NULL or 'ok' (excluding 'error's). Group concat turns it into a single array list for use later.
+  const [rows] = await pool.query(`
+    SELECT expo_push_token FROM expo_push_tokens
+  LEFT JOIN responses
+      ON responses.user_id = expo_push_tokens.user_id
+      AND DATE(responses.date_created) = CURDATE()
+  WHERE (expo_push_tokens.status IS NULL OR expo_push_tokens.status = 'ok')
+  AND responses.user_id IS NULL;
+  `);
+  console.log("getPushTokensDailyReminder output:", rows);
+  // for (let item in rows) {
+  //   console.log(rows[item].expo_push_token);
+  // }
+  return rows;
 }

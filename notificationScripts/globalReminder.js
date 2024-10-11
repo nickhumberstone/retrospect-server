@@ -4,95 +4,142 @@
 // - Push batches of notifications to expo server, one for each user that matches the above query
 // - each time it runs, it rechecks all those variables to make sure a respondee for the day isn't renudged
 
-import mysql from 'mysql2';
-import dotenv from 'dotenv';
-import { Expo } from 'expo-server-sdk';
+import {
+  getDailyQuestion,
+  getPushTokensDailyReminder,
+} from "../databaselogic.js";
+import { Expo } from "expo-server-sdk";
 
-dotenv.config();
+console.log("globalReminders.js has been run with: node globalreminder.js");
 
-console.log("globalReminders.js has been run with: node globalreminder.js")
+getPushTokensDailyReminder();
 
-const pool = mysql.createPool({
-    host: process.env.MYSQL_HOST,
-    port: process.env.MYSQL_PORT,
-    user: process.env.MYSQL_USER,
-    password: process.env.MYSQL_PASSWORD,
-    database: process.env.MYSQL_DATABASE
-}).promise()
+getDailyQuestion();
 
-async function listNotResponded() {
-    const date = '2024-05-11'
-    // const date = new Date().toISOString().slice(0,10)
-    const [output] = await pool.query(`
-    SELECT GROUP_CONCAT(expo_push_token) AS expo_push_tokens_list
-    FROM expo_push_tokens
-    LEFT JOIN responses 
-    ON responses.user_id = expo_push_tokens.user_id
-    AND DATE(responses.date_created) = curdate()
-    WHERE responses.user_id IS NULL`,[date])
-        // console.log(output[0].expo_push_tokens_list)
-        return output[0].expo_push_tokens_list  
-}
+// let pushTokensList = listNotResponded();
+// //UNABLE TO RETRIEVE FCM SERVER KEY - MAKE SURE YOU HAVE PROVIDED A SERVER KEY!!!!!
 
-const list = listNotResponded()
-.then(console.log)
+// // Create a new Expo SDK client
+// // optionally providing an access token if you have enabled push security
 
-//UNABLE TO RETRIEVE FCM SERVER KEY - MAKE SURE YOU HAVE PROVIDED A SERVER KEY!!!!!
+// // Nick H expo push token is:
+// // ExponentPushToken[ZEJLSAG4QZdJi1w2_0Y1vG]
+// console.log("creating Expo instance");
+// let expo = new Expo({
+//   accessToken: process.env.EXPO_ACCESS_TOKEN,
+//   useFcmV1: true,
+// });
 
-// Create a new Expo SDK client
-// optionally providing an access token if you have enabled push security
-let expo = new Expo({
-  // accessToken: process.env.EXPO_ACCESS_TOKEN,
-  useFcmV1: true // this can be set to true in order to use the FCM v1 API
-});
+// // Create the messages that you want to send to clients
+// let messages = [];
+// console.log("creating messages");
+// for (let pushToken of { pushTokensList }) {
+//   if (!Expo.isExpoPushToken(pushToken.expo_push_token)) {
+//     console.error(
+//       `Push token ${pushToken.expo_push_token} is not a valid Expo push token`
+//     );
+//     continue;
+//   }
 
-console.log("expo access token set")
+//   messages.push({
+//     to: pushToken.expo_push_token,
+//     sound: "default",
+//     body: "Today's question is waiting for you!",
+//   });
+//   console.log("message created for:", pushToken.expo_push_token);
+// }
 
-const pushtokenlist = ['ExponentPushToken[TXWTkvBWkRn7PD2Wg2PWBh]']
+// // The Expo push notification service accepts batches of notifications so
+// // that you don't need to send 1000 requests to send 1000 notifications. We
+// // recommend you batch your notifications to reduce the number of requests
+// // and to compress them (notifications with similar content will get
+// // compressed).
+// let chunks = expo.chunkPushNotifications(messages);
+// let tickets = [];
+// (async () => {
+//   // Send the chunks to the Expo push notification service. There are
+//   // different strategies you could use. A simple one is to send one chunk at a
+//   // time, which nicely spreads the load out over time:
+//   for (let chunk of chunks) {
+//     try {
+//       let ticketChunk = await expo.sendPushNotificationsAsync(chunk);
+//       //   console.log("TICKET CHUNK:", ticketChunk);
+//       tickets.push(...ticketChunk);
+//       //   console.log("TICKETSSSSS", tickets);
 
-// Create the messages that you want to send to clients
-let messages = [];
-for (let pushToken of pushtokenlist) {
-  // Each push token looks like ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]
+//       for (let ticket of ticketChunk) {
+//         if (
+//           ticket.status === "error" &&
+//           ticket.details &&
+//           ticket.details.error
+//         ) {
+//           console.error(`Push notification error: ${ticket.details.error}`);
+//         }
+//       }
+//       // NOTE: If a ticket contains an error code in ticket.details.error, you
+//       // must handle it appropriately. The error codes are listed in the Expo
+//       // documentation:
+//       // https://docs.expo.io/push-notifications/sending-notifications/#individual-errors
+//     } catch (error) {
+//       console.error(error);
+//     }
+//   }
+// })();
 
-  // Check that all your push tokens appear to be valid Expo push tokens
-  if (!Expo.isExpoPushToken(pushToken)) {
-    console.error(`Push token ${pushToken} is not a valid Expo push token`);
-    continue;
-  }
+// // Later, after the Expo push notification service has delivered the
+// // notifications to Apple or Google (usually quickly, but allow the service
+// // up to 30 minutes when under load), a "receipt" for each notification is
+// // created. The receipts will be available for at least a day; stale receipts
+// // are deleted.
 
-  // Construct a message (see https://docs.expo.io/push-notifications/sending-notifications/)
-  messages.push({
-    to: pushToken,
-    sound: 'default',
-    body: 'Open the app to answer todays question',
-    // data: { withSome: 'data' },
-  })
-}
+// // The ID of each receipt is sent back in the response "ticket" for each
+// // notification. In summary, sending a notification produces a ticket, which
+// // contains a receipt ID you later use to get the receipt.
 
-// The Expo push notification service accepts batches of notifications so
-// that you don't need to send 1000 requests to send 1000 notifications. We
-// recommend you batch your notifications to reduce the number of requests
-// and to compress them (notifications with similar content will get
-// compressed).
+// // The receipts may contain error codes to which you must respond. In
+// // particular, Apple or Google may block apps that continue to send
+// // notifications to devices that have blocked notifications or have uninstalled
+// // your app. Expo does not control this policy and sends back the feedback from
+// // Apple and Google so you can handle it appropriately.
 
-let chunks = expo.chunkPushNotifications(messages);
-let tickets = [];
-(async () => {
-  // Send the chunks to the Expo push notification service. There are
-  // different strategies you could use. A simple one is to send one chunk at a
-  // time, which nicely spreads the load out over time:
-  for (let chunk of chunks) {
-    try {
-      let ticketChunk = await expo.sendPushNotificationsAsync(chunk);
-      console.log(ticketChunk);
-      tickets.push(...ticketChunk);
-      // NOTE: If a ticket contains an error code in ticket.details.error, you
-      // must handle it appropriately. The error codes are listed in the Expo
-      // documentation:
-      // https://docs.expo.io/push-notifications/sending-notifications/#individual-errors
-    } catch (error) {
-      console.error(error);
-    }
-  }
-})();
+// let receiptIds = [];
+// for (let ticket of tickets) {
+//   // NOTE: Not all tickets have IDs; for example, tickets for notifications
+//   // that could not be enqueued will have error information and no receipt ID.
+//   if (ticket.status === "ok") {
+//     receiptIds.push(ticket.id);
+//   }
+// }
+
+// let receiptIdChunks = expo.chunkPushNotificationReceiptIds(receiptIds);
+// (async () => {
+//   // Like sending notifications, there are different strategies you could use
+//   // to retrieve batches of receipts from the Expo service.
+//   for (let chunk of receiptIdChunks) {
+//     try {
+//       let receipts = await expo.getPushNotificationReceiptsAsync(chunk);
+
+//       // The receipts specify whether Apple or Google successfully received the
+//       // notification and information about an error, if one occurred.
+//       for (let receiptId in receipts) {
+//         let { status, message, details } = receipts[receiptId];
+//         if (status === "ok") {
+//           continue;
+//         } else if (status === "error") {
+//           console.error(
+//             `There was an error sending a notification: ${message}`
+//           );
+//           if (details && details.error) {
+//             // The error codes are listed in the Expo documentation:
+//             // https://docs.expo.io/push-notifications/sending-notifications/#individual-errors
+//             // You must handle the errors appropriately.
+//             console.error(`The error code is ${details.error}`);
+//           }
+//         }
+//       }
+//     } catch (error) {
+//       console.error(error);
+//     }
+//   }
+//   console.log("Admin: globalReminded.js has finished processing");
+// })();
