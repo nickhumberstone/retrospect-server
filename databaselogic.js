@@ -142,19 +142,30 @@ export async function createUserProfile(
 }
 
 export async function getPushTokensDailyReminder() {
-  console.log("listnotresponded triggered");
+  console.log("getPushTokensDailyReminder triggered");
   //Query selects all expo_push_tokens where there is no response from today, and the token is either NULL or 'ok' (excluding 'error's). Group concat turns it into a single array list for use later.
   const [rows] = await pool.query(`
-    SELECT expo_push_token FROM expo_push_tokens
+    SELECT JSON_ARRAYAGG(expo_push_token) AS expo_push_token_array FROM expo_push_tokens
   LEFT JOIN responses
       ON responses.user_id = expo_push_tokens.user_id
       AND DATE(responses.date_created) = CURDATE()
   WHERE (expo_push_tokens.status IS NULL OR expo_push_tokens.status = 'ok')
   AND responses.user_id IS NULL;
-  `);
-  console.log("getPushTokensDailyReminder output:", rows);
-  // for (let item in rows) {
-  //   console.log(rows[item].expo_push_token);
-  // }
-  return rows;
+  `)
+  console.log("getPushTokensDailyReminder output:", rows[0].expo_push_token);
+  const output = [];
+  for (let item in rows) {
+    console.log(rows[item].expo_push_token_array);
+    output.push(rows[item].expo_push_token);
+  }
+  console.log("output:", output);
+  // return output;
+
+  //returns something like:
+  //output: [
+  // 'ExponentPushToken[w3ShgtB1KLx5KByVT4MwrC]',
+  // 'ExponentPushToken[2mlSIpOWlqFfGynQNcX5ZF]',
+  // ]
+  console.log("output:", rows[0].expo_push_token_array);
+  return rows[0].expo_push_token_array;
 }
