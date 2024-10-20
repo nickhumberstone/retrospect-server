@@ -47,17 +47,30 @@ export async function getDailyAnswers(user) {
   return output;
 }
 
+// export async function getMyAnswers(user) {
+//   const dayInCycle = dayInCycleCalculation(Date.now());
+//   const [output] = await pool.query(
+//     `
+//     SELECT response_id, text_content, DATE_FORMAT(date_created, '%a %D %M') as date_created
+//     FROM responses 
+//     WHERE user_id = ?
+//     AND dayInCycle = ?
+//     ORDER BY response_id DESC
+//     LIMIT 4`,
+//     [user, dayInCycle]
+//   );
+//   return output;
+// }
+
 export async function getMyAnswers(user) {
-  const dayInCycle = dayInCycleCalculation(Date.now());
   const [output] = await pool.query(
     `
-    SELECT response_id, text_content, DATE_FORMAT(date_created, '%a %D %M') as date_created
-    FROM responses 
+    SELECT response_id, text_content, responses.dayInCycle, dailyQuestion AS question, DATE_FORMAT(date_created, '%a %D %M') AS date_text, date_created
+	  FROM responses
+    LEFT JOIN questions ON questions.dayInCycle = responses.dayInCycle
     WHERE user_id = ?
-    AND dayInCycle = ?
-    ORDER BY response_id DESC
-    LIMIT 4`,
-    [user, dayInCycle]
+    ORDER BY response_id DESC`,
+    [user]
   );
   return output;
 }
