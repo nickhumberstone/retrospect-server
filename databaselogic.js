@@ -65,7 +65,7 @@ export async function getDailyAnswers(user) {
 export async function getMyAnswers(user) {
   const [output] = await pool.query(
     `
-    SELECT response_id, text_content, responses.dayInCycle, dailyQuestion AS question, DATE_FORMAT(date_created, '%a %D %M') AS date_text, date_created
+    SELECT response_id, text_content, responses.dayInCycle, dailyQuestion AS question, DATE_FORMAT(date_created, '%a %D %M') AS date_as_text, date_created
 	  FROM responses
     LEFT JOIN questions ON questions.dayInCycle = responses.dayInCycle
     WHERE user_id = ?
